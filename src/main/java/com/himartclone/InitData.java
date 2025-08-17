@@ -2,10 +2,13 @@ package com.himartclone;
 
 import com.himartclone.category.domain.Category;
 import com.himartclone.goods.domain.*;
+import com.himartclone.member.domain.Member;
+import com.himartclone.member.repository.MemberRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -13,17 +16,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class InitData {
 
     private final InitService initService;
-
-    public InitData(InitService initService) {
-        this.initService = initService;
-    }
+    private final MemberRepository memberRepository;
 
     @PostConstruct
-    void postConstruct() {
+    public void init() {
         initService.dbInit();
+
+        //테스트 로그인 데이터
+        Member member = new Member();
+        member.setMemberId("test");
+        member.setPassword("test!");
+        member.setName("테스터");
+        memberRepository.save(member);
     }
 
     @Component

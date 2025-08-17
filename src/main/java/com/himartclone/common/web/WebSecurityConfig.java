@@ -1,8 +1,10 @@
-package com.himartclone;
+package com.himartclone.common.web;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -12,12 +14,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 @Configuration
+@EnableWebSecurity
 public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http.cors(cors -> cors.configurationSource(CorsConfig.corsConfigurationSource()));
+//        http.cors(cors -> cors.configurationSource(CorsConfig.corsConfigurationSource()));
+        http.csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
@@ -31,6 +35,8 @@ public class WebSecurityConfig {
             ArrayList<String> allowedOriginPatterns = new ArrayList<>();
             allowedOriginPatterns.add("http://localhost:3000");
             allowedOriginPatterns.add("http://127.0.0.1:3000");
+            allowedOriginPatterns.add("http://localhost:8080");
+            allowedOriginPatterns.add("http://127.0.0.1:8080");
             configuration.setAllowedOrigins(allowedOriginPatterns);
 
             //허용하는 HTTP METHOD 지정

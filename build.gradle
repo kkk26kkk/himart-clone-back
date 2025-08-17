@@ -1,15 +1,23 @@
+buildscript {
+    ext ['commons-lang3.version'] = '3.18.0'
+}
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.1'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'maven-publish'
 }
+
+// Nexus 관련 추가 태스크 포함
+apply from: 'nexus-build.gradle'
 
 group = 'com'
 version = '0.0.1-SNAPSHOT'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -20,14 +28,77 @@ configurations {
 }
 
 repositories {
+    // 최우선: Boot 저장소 (custom dependency repository)
+    maven {
+        name = "nexus-boot"
+        url = "${nexusUrl}/${nexusBootRepo}"
+        credentials {
+            username = project.findProperty('nexusUsername') ?: System.getenv('NEXUS_USERNAME')
+            password = project.findProperty('nexusPassword') ?: System.getenv('NEXUS_PASSWORD')
+        }
+        allowInsecureProtocol = true // HTTPS 사용 시 제거
+        
+        // Boot 저장소를 우선적으로 사용하도록 설정
+        content {
+            includeGroupByRegex "org\\.springframework.*"
+            includeGroupByRegex "com\\.fasterxml\\.jackson.*"
+            includeGroupByRegex "org\\.hibernate.*"
+            includeGroupByRegex "ch\\.qos\\.logback.*"
+            includeGroupByRegex "org\\.slf4j.*"
+            includeGroupByRegex "org\\.junit.*"
+            includeGroupByRegex "org\\.mockito.*"
+            includeGroupByRegex "jakarta.*"
+            includeGroupByRegex "org\\.mybatis.*"
+            includeGroupByRegex "org\\.thymeleaf.*"
+            includeGroupByRegex "org\\.springdoc.*"
+        }
+    }
+    
+    // Nexus Repository 설정
+    maven {
+        name = "nexus-releases"
+        url = "${nexusUrl}/${nexusReleaseRepo}"
+        credentials {
+            username = project.findProperty('nexusUsername') ?: System.getenv('NEXUS_USERNAME')
+            password = project.findProperty('nexusPassword') ?: System.getenv('NEXUS_PASSWORD')
+        }
+        allowInsecureProtocol = true // HTTPS 사용 시 제거
+    }
+    
+    maven {
+        name = "nexus-snapshots"
+        url = "${nexusUrl}/${nexusSnapshotRepo}"
+        credentials {
+            username = project.findProperty('nexusUsername') ?: System.getenv('NEXUS_USERNAME')
+            password = project.findProperty('nexusPassword') ?: System.getenv('NEXUS_PASSWORD')
+        }
+        allowInsecureProtocol = true // HTTPS 사용 시 제거
+    }
+    
+    maven {
+        name = "nexus-proxy"
+        url = "${nexusUrl}/${nexusProxyRepo}"
+        credentials {
+            username = project.findProperty('nexusUsername') ?: System.getenv('NEXUS_USERNAME')
+            password = project.findProperty('nexusPassword') ?: System.getenv('NEXUS_PASSWORD')
+        }
+        allowInsecureProtocol = true // HTTPS 사용 시 제거
+    }
+    
+    // 백업용: Nexus 접근 불가 시에만 사용
     mavenCentral()
 }
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
+
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
 
     compileOnly 'org.projectlombok:lombok'
@@ -35,8 +106,55 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    testCompileOnly 'org.projectlombok:lombok:'
+    testAnnotationProcessor 'org.projectlombok:lombok:'
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+// Publishing 설정
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            
+            groupId = project.group
+            artifactId = project.name
+            version = project.version
+            
+            pom {
+                name = 'Himart Clone Backend'
+                description = 'Himart Clone Backend Application'
+                
+                developers {
+                    developer {
+                        id = 'himart-team'
+                        name = 'Himart Development Team'
+                        email = 'dev@himart.com'
+                    }
+                }
+            }
+        }
+    }
+    
+    repositories {
+        maven {
+            name = "nexus"
+            def releaseRepo = "${nexusUrl}/${nexusReleaseRepo}"
+            def snapshotRepo = "${nexusUrl}/${nexusSnapshotRepo}"
+            
+            url = version.endsWith('SNAPSHOT') ? snapshotRepo : releaseRepo
+            
+            credentials {
+                username = project.findProperty('nexusUsername') ?: System.getenv('NEXUS_USERNAME')
+                password = project.findProperty('nexusPassword') ?: System.getenv('NEXUS_PASSWORD')
+            }
+            allowInsecureProtocol = true // HTTPS 사용 시 제거
+        }
+    }
 }

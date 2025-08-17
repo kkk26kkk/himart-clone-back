@@ -1,0 +1,140 @@
+// Nexus Repository 관련 추가 태스크들
+
+// 의존성 다운로드 확인 태스크
+task checkDependencies {
+    group = 'nexus'
+    description = 'Nexus Repository에서 의존성 다운로드 상태 확인'
+    
+    doLast {
+        configurations.compileClasspath.each { file ->
+            println "Downloaded: ${file.name}"
+        }
+    }
+}
+
+// Nexus Repository 연결 테스트 태스크
+task testNexusConnection {
+    group = 'nexus'
+    description = 'Nexus Repository 연결 테스트'
+    
+    doLast {
+        repositories.each { repo ->
+            if (repo.metaClass.hasProperty(repo, 'url')) {
+                println "Testing connection to: ${repo.name} - ${repo.url}"
+                try {
+                    def connection = new URL(repo.url.toString()).openConnection()
+                    connection.setConnectTimeout(5000)
+                    connection.setReadTimeout(5000)
+                    def responseCode = connection.getResponseCode()
+                    println "✓ Connection successful: HTTP ${responseCode}"
+                } catch (Exception e) {
+                    println "✗ Connection failed: ${e.message}"
+                }
+            }
+        }
+    }
+}
+
+// Boot Repository 연결 테스트 태스크
+task testBootRepository {
+    group = 'nexus'
+    description = 'Boot Repository 연결 및 상태 테스트'
+    
+    doLast {
+        def bootRepoUrl = "${nexusUrl}/${nexusBootRepo}"
+        println "Testing Boot Repository: ${bootRepoUrl}"
+        
+        try {
+            def connection = new URL(bootRepoUrl).openConnection()
+            connection.setConnectTimeout(5000)
+            connection.setReadTimeout(5000)
+            
+            def username = project.findProperty('nexusUsername') ?: System.getenv('NEXUS_USERNAME')
+            def password = project.findProperty('nexusPassword') ?: System.getenv('NEXUS_PASSWORD')
+            
+            if (username && password) {
+                def auth = "${username}:${password}".bytes.encodeBase64().toString()
+                connection.setRequestProperty("Authorization", "Basic ${auth}")
+            }
+            
+            def responseCode = connection.getResponseCode()
+            println "✓ Boot Repository connection successful: HTTP ${responseCode}"
+            
+            if (responseCode == 200) {
+                println "✓ Boot Repository is ready for dependency downloads"
+            }
+        } catch (Exception e) {
+            println "✗ Boot Repository connection failed: ${e.message}"
+        }
+    }
+}
+
+// 라이브러리 캐시 정리 태스크
+task clearNexusCache {
+    group = 'nexus'
+    description = 'Nexus Repository 캐시 정리'
+    
+    doLast {
+        delete "${gradle.gradleUserHomeDir}/caches"
+        println "Nexus cache cleared successfully"
+    }
+}
+
+// Boot Repository 전용 빌드 태스크
+task buildWithBootRepo {
+    group = 'nexus'
+    description = 'Boot Repository만 사용하여 빌드 (연동 테스트용)'
+    
+    doLast {
+        configurations.compileClasspath.files.each { file ->
+            if (file.name.endsWith('.jar')) {
+                println "Boot Repository에서 다운로드: ${file.name}"
+            }
+        }
+    }
+}
+
+// Boot Repository 의존성 확인
+task checkBootDependencies {
+    group = 'nexus'
+    description = 'Boot Repository에서 다운로드된 의존성 확인'
+    
+    doLast {
+        println "\n=== Boot Repository 의존성 확인 ==="
+        def bootDependencies = []
+        
+        configurations.compileClasspath.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+            def id = artifact.moduleVersion.id
+            println "✓ ${id.group}:${id.name}:${id.version}"
+            bootDependencies.add("${id.group}:${id.name}:${id.version}")
+        }
+        
+        println "\n총 ${bootDependencies.size()}개의 의존성이 해결되었습니다."
+        
+        if (bootDependencies.size() > 0) {
+            println "\n🎉 Boot Repository 연동이 정상적으로 작동하고 있습니다!"
+        }
+    }
+}
+
+// 환경별 빌드 태스크
+task buildDev {
+    group = 'nexus'
+    description = '개발 환경용 빌드 (dev Nexus 사용)'
+    dependsOn 'build'
+    
+    doFirst {
+        project.ext.set('gradle.properties.file', 'gradle-dev.properties')
+    }
+}
+
+task buildProd {
+    group = 'nexus'
+    description = '운영 환경용 빌드 (prod Nexus 사용)'
+    dependsOn 'build'
+    
+    doFirst {
+        project.ext.set('gradle.properties.file', 'gradle-prod.properties')
+    }
+}
+

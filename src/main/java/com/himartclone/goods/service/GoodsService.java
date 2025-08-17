@@ -2,10 +2,12 @@ package com.himartclone.goods.service;
 
 import com.himartclone.goods.domain.GoodsBase;
 import com.himartclone.goods.repository.GoodsQueryRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class GoodsService {
 
