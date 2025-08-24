@@ -1,4 +1,7 @@
 spring:
+  config:
+    activate:
+      on-profile: local
   application:
     name: himart-clone-back
   messages:
@@ -10,8 +13,8 @@ spring:
       enabled: true
 
   datasource:
-    url: jdbc:h2:tcp://localhost/~/himartclone
-#    url: jdbc:h2:mem:himartclone;MODE=MySQL;
+#    url: jdbc:h2:tcp://localhost/~/himartclone
+    url: jdbc:h2:mem:himartclone;MODE=MySQL;
     username: sa
     password:
     driver-class-name: org.h2.Driver
@@ -44,3 +47,35 @@ springdoc:
 
 file:
   dir: C:\\User\\kkk26\\study\\file\\
+
+app:
+  prop:
+    main-domain-url: loc.e-himart.co.kr:9730
+    resource-domain-url: static1loc.e-himart.co.kr:9730
+    profile: local
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: staging
+
+app:
+  prop:
+    profile: staging
+    main-domain-url: tst.e-himart.co.kr
+    resource-domain-url: static1tst.e-himart.co.kr
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: production
+
+app:
+  prop:
+    profile: staging
+    main-domain-url: www.e-himart.co.kr
+    resource-domain-url: static1tst.e-himart.co.kr
