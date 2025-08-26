@@ -1,5 +1,6 @@
 package com.himartclone.goods.controller;
 
+import com.himartclone.common.aop.ExecutionTimeLog;
 import com.himartclone.goods.controller.dto.GoodsDetailResponseDto;
 import com.himartclone.goods.domain.GoodsBase;
 import com.himartclone.goods.service.GoodsService;
@@ -27,6 +28,7 @@ public class GoodsController {
             @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "404", description = "상품 정보를 찾을 수 없음")
     })
+    @ExecutionTimeLog
     public ResponseEntity<GoodsDetailResponseDto> findOneGoods(@RequestParam String goodsNo) {
         GoodsBase goodsBase = goodsService.findGoodsOne(goodsNo);
         GoodsDetailResponseDto dto = new GoodsDetailResponseDto(goodsBase);

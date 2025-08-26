@@ -6,6 +6,9 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
+
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class Aspects {
@@ -14,7 +17,8 @@ public class Aspects {
     @Order(2)
     @Component
     public static class executionTimeAspect {
-        @Around("com.himartclone.common.aop.Pointcuts.goodsAndController()")
+//        @Around("com.himartclone.common.aop.Pointcuts.goodsAndController()")
+        @Around("@annotation(ExecutionTimeLog)")
         public Object executionTime(ProceedingJoinPoint joinPoint) throws Throwable {
             long startTime = System.currentTimeMillis();
             Object result = joinPoint.proceed();

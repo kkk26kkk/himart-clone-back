@@ -12,4 +12,7 @@ public class Pointcuts {
 
     @Pointcut("allGoods() && allController()")
     public void goodsAndController() {}
+
+    @Pointcut("@annotation(ExecutionTimeLog)")
+    public void ExecutionTimeLog() {}
 }
