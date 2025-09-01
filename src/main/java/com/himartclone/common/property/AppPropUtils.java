@@ -12,11 +12,11 @@ public class AppPropUtils {
 
     public static String mainDomainUrl;
 
-    public static String resourceDomainUrl;
+//    public static String resourceDomainUrl;
 
     @PostConstruct
     public void init() {
         mainDomainUrl = appStrat.getMainDomainUrl();
-        resourceDomainUrl = appStrat.getResourceDomainUrl();
+//        resourceDomainUrl = appStrat.getResourceDomainUrl();
     }
 }

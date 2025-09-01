@@ -51,8 +51,8 @@ file:
 app:
   prop:
     main-domain-url: loc.e-himart.co.kr:9730
-    resource-domain-url: static1loc.e-himart.co.kr:9730
-    profile: local
+    resource-domain-url: static1loc.e-himart.co.kr:9730,static2loc.e-himart.co.kr:9730
+    stage: LOCAL
 
 ---
 
@@ -63,9 +63,9 @@ spring:
 
 app:
   prop:
-    profile: staging
     main-domain-url: tst.e-himart.co.kr
-    resource-domain-url: static1tst.e-himart.co.kr
+    resource-domain-url: static1tst.e-himart.co.kr,static2tst.e-himart.co.kr
+    stage: STAGING
 
 ---
 
@@ -76,6 +76,6 @@ spring:
 
 app:
   prop:
-    profile: staging
     main-domain-url: www.e-himart.co.kr
-    resource-domain-url: static1tst.e-himart.co.kr
+    resource-domain-url: static1.e-himart.co.kr,static2.e-himart.co.kr
+    stage: PRODUCTION

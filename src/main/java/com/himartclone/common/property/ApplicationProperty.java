@@ -9,15 +9,13 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ToString
 public class ApplicationProperty {
 
-    private String mainDomainUrl;
+    private final String mainDomainUrl;
+    private final String[] resourceDomainUrl;
+    private final String stage;
 
-    private String resourceDomainUrl;
-
-    private String profile;
-
-    public ApplicationProperty(String mainDomainUrl, String resourceDomainUrl, String profile) {
+    public ApplicationProperty(String mainDomainUrl, String[] resourceDomainUrl, String stage) {
         this.mainDomainUrl = mainDomainUrl;
         this.resourceDomainUrl = resourceDomainUrl;
-        this.profile = profile;
+        this.stage = stage;
     }
 }

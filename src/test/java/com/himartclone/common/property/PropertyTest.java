@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-@ActiveProfiles({"local", "front"})
+@ActiveProfiles({"staging", "frontMobile"})
 @Slf4j
 public class PropertyTest {
 
@@ -16,9 +16,9 @@ public class PropertyTest {
     ApplicationProperty appProp;
 
     @Autowired
-    ApplicationStrategy appStrat;
+    ApplicationStrategy applicationStrategy;
 
-    @Value("${file.dir}")
+    @Value("${file.dir:/data/home}")
     private String fileDir;
 
     @Test
@@ -28,9 +28,10 @@ public class PropertyTest {
     }
 
     @Test
-    void appStratTest() {
-        log.info("mainDomainUrl={}", appStrat.getMainDomainUrl());
-        log.info("resourceDomainUrl={}", appStrat.getResourceDomainUrl());
+    void applicationStrategyTest() {
+        log.info("symbol={}, mainDomainUrl={}, resourceDomainUrl={}, cookieSessionName={}",
+                applicationStrategy.getSymbol(), applicationStrategy.getMainDomainUrl(),
+                applicationStrategy.getResourceDomainUrl(), applicationStrategy.getCookieSessionName());
     }
 
     @Test

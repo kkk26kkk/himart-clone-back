@@ -13,7 +13,7 @@ import java.util.UUID;
 @Component
 public class FileStore {
 
-    @Value("${file.dir}")
+    @Value("${file.dir:/data/home}")
     private String fileDir;
 
     public String getFullPath(String filename) {
