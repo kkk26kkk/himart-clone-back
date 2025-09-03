@@ -13,11 +13,13 @@ spring:
       enabled: true
 
   datasource:
-#    url: jdbc:h2:tcp://localhost/~/himartclone
-    url: jdbc:h2:mem:himartclone;MODE=MySQL;
+    url: jdbc:h2:tcp://localhost/~/himartclone
+#    url: jdbc:h2:mem:himartclone;MODE=MySQL;
     username: sa
     password:
     driver-class-name: org.h2.Driver
+    hikari:
+      auto-commit: false  # 자동 커밋 비활성화 (중요!)
 
   jpa:
     hibernate:
@@ -28,6 +30,21 @@ spring:
         format_sql: true
         default_batch_fetch_size: 1000
 #    open-in-view: false
+
+# MyBatis 설정
+mybatis:
+  mapper-locations: classpath:mybatis/mapper/*.xml
+  type-aliases-package: com.himartclone.mybatis.domain
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: true
+    lazy-loading-enabled: true
+    multiple-result-sets-enabled: true
+    use-column-label: true
+    use-generated-keys: false
+    auto-mapping-behavior: partial
+    default-executor-type: simple
+    default-statement-timeout: 25000
 
 logging.level:
     org.hibernate.SQL: debug

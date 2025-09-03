@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.himartclone.mybatis.repository.TestRepository">
+
+    <!-- 결과 매핑 -->
+    <resultMap id="testResultMap" type="com.himartclone.mybatis.domain.TestVO">
+        <id property="id" column="id"/>
+        <result property="testName" column="test_name"/>
+        <result property="testDescription" column="test_description"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <!-- 테스트 데이터 삽입 -->
+    <insert id="insertTest" parameterType="com.himartclone.mybatis.domain.TestVO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO Test_Tb (
+            test_name,
+            test_description,
+            created_at
+        ) VALUES (
+            #{testName},
+            #{testDescription},
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <!-- 테스트 데이터 수정 -->
+    <update id="updateTest" parameterType="com.himartclone.mybatis.domain.TestVO">
+        UPDATE Test_Tb 
+        SET 
+            test_name = #{testName},
+            test_description = #{testDescription}
+            , test_contents = #{testContents}
+        WHERE id = #{id}
+    </update>
+
+    <!-- ID로 테스트 데이터 조회 -->
+    <select id="findById" parameterType="long" resultMap="testResultMap">
+        SELECT 
+            id,
+            test_name,
+            test_description,
+            created_at
+        FROM Test_Tb 
+        WHERE id = #{id}
+    </select>
+
+    <!-- 모든 테스트 데이터 조회 -->
+    <select id="findAll" resultMap="testResultMap">
+        SELECT 
+            id,
+            test_name,
+            test_description,
+            created_at
+        FROM Test_Tb 
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 이름으로 테스트 데이터 조회 -->
+    <select id="findByTestName" parameterType="string" resultMap="testResultMap">
+        SELECT 
+            id,
+            test_name,
+            test_description,
+            created_at
+        FROM Test_Tb 
+        WHERE test_name LIKE CONCAT('%', #{testName}, '%')
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 테스트 데이터 삭제 -->
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM Test_Tb 
+        WHERE id = #{id}
+    </delete>
+
+</mapper>
